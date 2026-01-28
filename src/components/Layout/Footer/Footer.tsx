@@ -178,8 +178,11 @@ export default function Footer() {
           </div>
 
           <p className="text-xs text-white/60">
-            © {new Date().getFullYear()} | Imobiliária Premium | CRECI: XXXXX |
-            Made with 💛 by <a href="">Lucca Audiovisual</a>
+            © {new Date().getFullYear()} | Imobiliária & Construtora Premium |
+            CRECI: XXXXX | Made with 💛 by{" "}
+            <a href="https://www.instagram.com/luccaaudiovisual">
+              Lucca Audiovisual
+            </a>
           </p>
         </div>
       </div>
