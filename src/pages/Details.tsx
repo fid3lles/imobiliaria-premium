@@ -506,7 +506,7 @@ export default function PropertyDetailsPage() {
 
           {/* Right */}
           <aside className="lg:col-span-4 space-y-6">
-            <div className="rounded-2xl border border-zinc-200 bg-white p-5 lg:sticky lg:top-6">
+            <div className="rounded-2xl border border-zinc-200 bg-white p-5 lg:top-6">
               <SectionTitle>Características extras</SectionTitle>
 
               <div className="mt-4 space-y-3">
