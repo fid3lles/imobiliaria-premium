@@ -83,21 +83,21 @@ export default function Footer() {
         <div className="max-w-7xl mx-auto px-4 py-10 grid gap-8 md:grid-cols-2">
           {/* Unidade 1 */}
           <div className="space-y-3">
-            <h4 className="font-semibold">Bairro Jardim</h4>
+            <h4 className="font-semibold">Unidade do Bairro Matriz</h4>
 
             <div className="flex items-start gap-3 text-sm text-white/80">
               <FiMail className="mt-0.5 shrink-0" />
-              <span>imobiliaria@seudominio.com</span>
+              <span>contato@premiumimobiliaria.com</span>
             </div>
 
             <div className="flex items-start gap-3 text-sm text-white/80">
               <FiMapPin className="mt-0.5 shrink-0" />
-              <span>Av. Exemplo, 404 - Jardim, Santo André - SP</span>
+              <span>Rua Avaré, 15 Sala 24 - Matriz - Mauá - CEP 09370-200</span>
             </div>
 
             <div className="flex items-center gap-3 text-sm text-white/80">
               <FiPhone className="shrink-0" />
-              <span>(11) 4994-3477</span>
+              <span>(11) 92374-9516</span>
             </div>
 
             <a
@@ -107,38 +107,23 @@ export default function Footer() {
               rel="noreferrer"
             >
               <FaWhatsapp />
-              (11) 9 4007-0547
+              <span>(11) 92374-9516</span>
             </a>
           </div>
-
-          {/* Unidade 2 */}
+          {/* Mapa */}
           <div className="space-y-3">
-            <h4 className="font-semibold">Vila Assunção</h4>
+            <h4 className="font-semibold mb-4">Localização da unidade:</h4>
 
-            <div className="flex items-start gap-3 text-sm text-white/80">
-              <FiMail className="mt-0.5 shrink-0" />
-              <span>imobiliaria@seudominio.com</span>
+            <div className="overflow-hidden rounded-xl border border-white/10 bg-white/5">
+              <iframe
+                title="Mapa - Imobiliária Premium (Matriz)"
+                className="w-full h-80 md:h-60"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                src="https://www.google.com/maps?q=Rua%20Avar%C3%A9%2C%2015%20Sala%2024%20Mau%C3%A1%20SP%2009370-200&output=embed"
+                allowFullScreen
+              />
             </div>
-
-            <div className="flex items-start gap-3 text-sm text-white/80">
-              <FiMapPin className="mt-0.5 shrink-0" />
-              <span>Av. Exemplo, 237 - Vila Assunção, Santo André - SP</span>
-            </div>
-
-            <div className="flex items-center gap-3 text-sm text-white/80">
-              <FiPhone className="shrink-0" />
-              <span>(11) 4435-3535</span>
-            </div>
-
-            <a
-              className="inline-flex items-center gap-2 text-sm text-white hover:text-white/90 transition"
-              href="https://api.whatsapp.com/send?phone=5511947148384"
-              target="_blank"
-              rel="noreferrer"
-            >
-              <FaWhatsapp />
-              (11) 9 4714-8384
-            </a>
           </div>
         </div>
       </div>
@@ -179,7 +164,7 @@ export default function Footer() {
 
           <p className="text-xs text-white/60">
             © {new Date().getFullYear()} | Imobiliária & Construtora Premium |
-            CRECI: XXXXX | Made with 💛 by{" "}
+            CRECI: 112835 - Arlindo José de Lima | Made with 💛 by{" "}
             <a href="https://www.instagram.com/luccaaudiovisual">
               Lucca Audiovisual
             </a>

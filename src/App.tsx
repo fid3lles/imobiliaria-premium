@@ -1,24 +1,16 @@
-import "./App.css";
+import { Route, Routes } from "react-router-dom";
+import Home from "./pages/Home";
 import Layout from "./components/Layout/Layout";
-import HomeSearch from "./components/Search/HomeSearch";
-import Section from "./components/Section/Section";
+import Search from "./pages/Search";
 
-function App() {
+export default function App() {
   return (
-    <>
-      <Layout>
-        <Section
-          bg="../public/assets/hero_main_section.jpg"
-          className="min-h-160.5 flex items-center"
-        >
-          <HomeSearch
-            onSearch={(payload) => console.log("buscar:", payload)}
-            onSearchByCode={(codigo) => console.log("codigo:", codigo)}
-          />
-        </Section>
-        <div className="h-500"></div>
-      </Layout>
-    </>
+    <Routes>
+      <Route element={<Layout />}>
+        <Route path="/" element={<Home />} />
+        <Route path="/busca" element={<Search />} />
+      </Route>
+      <Route path="*" element={<h1>404</h1>} />
+    </Routes>
   );
 }
-export default App;

@@ -3,7 +3,7 @@ export default function Section({
   children,
   className = "",
 }: {
-  bg: string;
+  bg?: string;
   children: React.ReactNode;
   className?: string;
 }) {
