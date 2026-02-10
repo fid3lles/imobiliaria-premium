@@ -39,6 +39,9 @@ type Props = {
   onSearch?: (filters: Filters, result: unknown) => void;
   onResult: (data: any) => void;
   externalPage?: number;
+
+  /** opcional: permite ajustar largura/estilo do container quando embutido no modal */
+  className?: string;
 };
 
 const cn = (...classes: Array<string | false | null | undefined>) =>
@@ -308,6 +311,7 @@ export default function FiltersPanel({
   onSearch,
   onResult,
   externalPage,
+  className,
 }: Props) {
   const [cidades, setCidades] = useState<string[]>([]);
   const [cidadesLoading, setCidadesLoading] = useState(false);
@@ -410,7 +414,7 @@ export default function FiltersPanel({
     return submitWith(filters, e);
   }
 
-  // ✅ paginação vinda de fora (PropertyResultsGrid) - sem setTimeout
+  // ✅ paginação vinda de fora (PropertyResultsGrid)
   useEffect(() => {
     if (externalPage === undefined) return;
 
@@ -577,7 +581,7 @@ export default function FiltersPanel({
   }, [filters.cidade]);
 
   return (
-    <aside className="w-full max-w-[420px]">
+    <div className={cn("w-full", className)}>
       <form
         onSubmit={submit}
         className="bg-white border border-zinc-200 rounded-xl shadow-sm overflow-hidden"
@@ -986,6 +990,6 @@ export default function FiltersPanel({
           ) : null}
         </div>
       </form>
-    </aside>
+    </div>
   );
 }
