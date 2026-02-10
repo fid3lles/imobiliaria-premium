@@ -2,6 +2,7 @@ import { Route, Routes } from "react-router-dom";
 import Home from "./pages/Home";
 import Layout from "./components/Layout/Layout";
 import Search from "./pages/Search";
+import Details from "./pages/Details";
 
 export default function App() {
   return (
@@ -9,6 +10,7 @@ export default function App() {
       <Route element={<Layout />}>
         <Route path="/" element={<Home />} />
         <Route path="/busca" element={<Search />} />
+        <Route path="/imovel/:id" element={<Details />} />
       </Route>
       <Route path="*" element={<h1>404</h1>} />
     </Routes>

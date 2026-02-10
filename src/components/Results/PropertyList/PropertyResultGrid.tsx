@@ -230,7 +230,7 @@ function PropertyCard({
           </div>
 
           <span className="text-sm font-extrabold text-zinc-900 hover:underline">
-            Ver detalhes →
+            <a href={`/imovel/${item.id}`}>Ver detalhes →</a>
           </span>
         </div>
       </div>

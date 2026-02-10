@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { FiMenu } from "react-icons/fi";
 import { RxCross2 } from "react-icons/rx";
+import { NavLink } from "react-router-dom";
 
 export default function Header() {
   const [open, setOpen] = useState(false);
@@ -17,24 +18,24 @@ export default function Header() {
         </a>
 
         <nav className="hidden md:flex gap-6 text-sm uppercase text-[#FCE257] font-semibold">
-          <a
-            href="#"
+          <NavLink
+            to="/busca"
             className="hover:drop-shadow-[0_0_6px_rgba(255,214,214,0.6)]"
           >
             Comprar
-          </a>
-          <a
-            href="#"
+          </NavLink>
+          <NavLink
+            to="/busca"
             className="hover:drop-shadow-[0_0_6px_rgba(255,214,214,0.6)]"
           >
             Alugar
-          </a>
-          <a
-            href="#"
+          </NavLink>
+          <NavLink
+            to="/busca"
             className="hover:drop-shadow-[0_0_6px_rgba(255,214,214,0.6)]"
           >
             Anunciar meu imóvel
-          </a>
+          </NavLink>
         </nav>
 
         <button
@@ -47,15 +48,19 @@ export default function Header() {
 
       {open && (
         <div className="bg-[#64080F] text-white px-4 py-4 space-y-3 shadow-lg">
-          <a className="block" href="#">
+          <NavLink className="block" to="/busca" onClick={() => setOpen(false)}>
             Comprar
-          </a>
-          <a className="block" href="#">
+          </NavLink>
+          <NavLink className="block" to="/busca" onClick={() => setOpen(false)}>
             Alugar
-          </a>
-          <a className="block" href="#">
+          </NavLink>
+          <NavLink
+            className="block"
+            to="/anunciar"
+            onClick={() => setOpen(false)}
+          >
             Anunciar meu imóvel
-          </a>
+          </NavLink>
         </div>
       )}
     </header>
