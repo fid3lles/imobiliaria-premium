@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 
-type Modalidade = "COMPRA" | "ALUGUEL" | "LANCAMENTOS" | "";
+type Modalidade = "COMPRA" | "ALUGUEL" | "";
 
 type Filters = {
   condominio?: string;
@@ -33,6 +33,8 @@ type Filters = {
 
   page?: number;
 };
+
+const API_URL = import.meta.env.VITE_BACKEND_URL;
 
 type Props = {
   initialValue?: Filters;
@@ -387,7 +389,7 @@ export default function FiltersPanel({
 
     try {
       const url = buildSearchUrl(
-        "http://localhost:8080/imobiliaria-core/api/v1/busca",
+        `${API_URL}/imobiliaria-core/api/v1/busca`,
         next,
       );
 
@@ -478,7 +480,7 @@ export default function FiltersPanel({
     setCidadesError(null);
     try {
       const data = await fetchStringList(
-        "http://localhost:8080/imobiliaria-core/api/v1/categoria/cidades",
+        `${API_URL}/imobiliaria-core/api/v1/categoria/cidades`,
       );
       setCidades(data);
     } catch (err: any) {
@@ -494,7 +496,7 @@ export default function FiltersPanel({
     setBairrosError(null);
     try {
       const url =
-        "http://localhost:8080/imobiliaria-core/api/v1/categoria/bairros?cidade=" +
+        `${API_URL}/imobiliaria-core/api/v1/categoria/bairros?cidade=` +
         encodeURIComponent(cidade);
 
       const data = await fetchStringList(url);
@@ -512,7 +514,7 @@ export default function FiltersPanel({
     setInternasError(null);
     try {
       const data = await fetchStringList(
-        "http://localhost:8080/imobiliaria-core/api/v1/categoria/carac-internas",
+        `${API_URL}/imobiliaria-core/api/v1/categoria/carac-internas`,
       );
       setInternasOptions(data);
     } catch (err: any) {
@@ -528,7 +530,7 @@ export default function FiltersPanel({
     setExternasError(null);
     try {
       const data = await fetchStringList(
-        "http://localhost:8080/imobiliaria-core/api/v1/categoria/carac-externas",
+        `${API_URL}/imobiliaria-core/api/v1/categoria/carac-externas`,
       );
       setExternasOptions(data);
     } catch (err: any) {
@@ -544,7 +546,7 @@ export default function FiltersPanel({
     setTiposError(null);
     try {
       const data = await fetchStringList(
-        "http://localhost:8080/imobiliaria-core/api/v1/categoria/tipo-imovel",
+        `${API_URL}/imobiliaria-core/api/v1/categoria/tipo-imovel`,
       );
       setTiposOptions(data);
     } catch (err: any) {
@@ -584,7 +586,7 @@ export default function FiltersPanel({
     <div className={cn("w-full", className)}>
       <form
         onSubmit={submit}
-        className="bg-white border border-zinc-200 rounded-xl shadow-sm overflow-hidden"
+        className="bg-white border border-zinc-200 rounded-xl shadow-sm overflow-hidden min-w-89"
       >
         {/* Header / Abas */}
         <div className="p-4 border-b border-zinc-200">
@@ -593,7 +595,6 @@ export default function FiltersPanel({
               [
                 { label: "Comprar", value: "COMPRA" },
                 { label: "Alugar", value: "ALUGUEL" },
-                { label: "Lançamentos", value: "LANCAMENTOS" },
               ] as const
             ).map((tab) => {
               const active = filters.modalidade === tab.value;
@@ -977,17 +978,6 @@ export default function FiltersPanel({
           {searchError && !showMore && (
             <div className="text-sm text-red-600">{searchError}</div>
           )}
-
-          {searchResult ? (
-            <details className="mt-2">
-              <summary className="text-xs text-zinc-500 cursor-pointer">
-                Ver retorno (debug)
-              </summary>
-              <pre className="text-xs bg-zinc-50 border border-zinc-200 rounded-lg p-3 overflow-auto mt-2">
-                {JSON.stringify(searchResult, null, 2)}
-              </pre>
-            </details>
-          ) : null}
         </div>
       </form>
     </div>

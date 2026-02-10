@@ -17,6 +17,8 @@ import { redirectToWhatsapp } from "../utils/Whatsapp.utils";
 /** ===== Types ===== */
 type Modalidade = "COMPRA" | "ALUGUEL";
 
+const API_URL = import.meta.env.VITE_BACKEND_URL;
+
 export type Property = {
   id: number;
   tipo: string;
@@ -222,7 +224,7 @@ function Gallery({ images }: { images: string[] }) {
 
 /** ===== Page =====
  * Espera rota tipo: /imovel/:id
- * Busca: http://localhost:8080/imovel/{id}
+ * Busca: /imovel/{id}
  */
 export default function PropertyDetailsPage() {
   const { id } = useParams(); // React Router v6
@@ -261,7 +263,7 @@ export default function PropertyDetailsPage() {
         if (!id) throw new Error("ID do imóvel não encontrado na URL.");
 
         const res = await fetch(
-          `http://localhost:8080/imobiliaria-core/api/v1/busca/${id}`,
+          `${API_URL}/imobiliaria-core/api/v1/busca/${id}`,
           {
             method: "GET",
             headers: { Accept: "application/json" },
