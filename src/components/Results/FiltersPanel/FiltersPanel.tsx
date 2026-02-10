@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 
 type Modalidade = "COMPRA" | "ALUGUEL" | "LANCAMENTOS" | "";
 
@@ -9,7 +9,6 @@ type Filters = {
   aceitaPermuta?: boolean;
 
   tipo?: string;
-
   modalidade?: Modalidade;
 
   areaPrincipalMin?: number;
@@ -37,7 +36,6 @@ type Filters = {
 
 type Props = {
   initialValue?: Filters;
-  // se quiser ainda receber o retorno fora, mantive
   onSearch?: (filters: Filters, result: unknown) => void;
   onResult: (data: any) => void;
   externalPage?: number;
@@ -263,7 +261,6 @@ function buildSearchUrl(baseUrl: string, filters: Filters) {
     }
 
     if (Array.isArray(value)) {
-      // List<String> -> repetido: key=a&key=b
       value
         .filter(
           (x): x is string => typeof x === "string" && x.trim().length > 0,
@@ -300,6 +297,7 @@ function buildSearchUrl(baseUrl: string, filters: Filters) {
   add("valorIptuMin", filters.valorIptuMin);
   add("valorIptuMax", filters.valorIptuMax);
 
+  // ✅ sempre manda page (default 0)
   add("page", filters.page ?? 0);
 
   return url.toString();
@@ -311,12 +309,10 @@ export default function FiltersPanel({
   onResult,
   externalPage,
 }: Props) {
-  // ✅ cidades agora vêm do backend
   const [cidades, setCidades] = useState<string[]>([]);
   const [cidadesLoading, setCidadesLoading] = useState(false);
   const [cidadesError, setCidadesError] = useState<string | null>(null);
 
-  // ✅ bairros dependem de cidade
   const [bairros, setBairros] = useState<string[]>([]);
   const [bairrosLoading, setBairrosLoading] = useState(false);
   const [bairrosError, setBairrosError] = useState<string | null>(null);
@@ -328,27 +324,26 @@ export default function FiltersPanel({
 
   const [showMore, setShowMore] = useState(false);
 
-  // internas
   const [internasOptions, setInternasOptions] = useState<string[]>([]);
   const [internasLoading, setInternasLoading] = useState(false);
   const [internasError, setInternasError] = useState<string | null>(null);
 
-  // externas
   const [externasOptions, setExternasOptions] = useState<string[]>([]);
   const [externasLoading, setExternasLoading] = useState(false);
   const [externasError, setExternasError] = useState<string | null>(null);
 
-  // tipos
   const [tiposOptions, setTiposOptions] = useState<string[]>([]);
   const [tiposLoading, setTiposLoading] = useState(false);
   const [tiposError, setTiposError] = useState<string | null>(null);
 
-  // busca
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
   const [searchResult, setSearchResult] = useState<unknown>(null);
 
-  const [filters, setFilters] = useState<Filters>({
+  // ✅ evita “double fetch” no mount (strict mode / effects duplicados)
+  const didInitRef = useRef(false);
+
+  const [filters, setFilters] = useState<Filters>(() => ({
     condominio: initialValue?.condominio ?? "",
     bairro: initialValue?.bairro ?? "",
     cidade: initialValue?.cidade ?? "",
@@ -376,20 +371,57 @@ export default function FiltersPanel({
     valorIptuMin: initialValue?.valorIptuMin,
     valorIptuMax: initialValue?.valorIptuMax,
 
-    page: initialValue?.page,
-  });
+    page: initialValue?.page ?? 0, // ✅ default 0
+  }));
 
+  // ✅ submit que recebe o "next filters" (não usa closure velho)
+  async function submitWith(next: Filters, e?: React.FormEvent) {
+    e?.preventDefault();
+
+    setSearchLoading(true);
+    setSearchError(null);
+
+    try {
+      const url = buildSearchUrl(
+        "http://localhost:8080/imobiliaria-core/api/v1/busca",
+        next,
+      );
+
+      const res = await fetch(url);
+      if (!res.ok) throw new Error(`Falha na busca (${res.status})`);
+
+      const data = (await res.json()) as unknown;
+
+      setSearchResult(data);
+      onSearch?.(next, data);
+      onResult(data);
+
+      console.log("BUSCA URL:", url);
+      console.log("BUSCA RESULT:", data);
+    } catch (err: any) {
+      setSearchResult(null);
+      setSearchError(err?.message ?? "Erro ao buscar");
+    } finally {
+      setSearchLoading(false);
+    }
+  }
+
+  function submit(e?: React.FormEvent) {
+    return submitWith(filters, e);
+  }
+
+  // ✅ paginação vinda de fora (PropertyResultsGrid) - sem setTimeout
   useEffect(() => {
     if (externalPage === undefined) return;
 
     setFilters((prev) => {
       const current = prev.page ?? 0;
       if (current === externalPage) return prev;
-      return { ...prev, page: externalPage };
-    });
 
-    // dispara nova busca quando mudar página por fora
-    setTimeout(() => submit(), 0);
+      const next = { ...prev, page: externalPage };
+      submitWith(next);
+      return next;
+    });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [externalPage]);
 
@@ -397,13 +429,19 @@ export default function FiltersPanel({
     console.log("Filters updated:", filters);
   }, [filters]);
 
+  // ✅ primeira busca (apenas 1x de verdade)
   useEffect(() => {
-    const initialFilters: Filters = { modalidade: "COMPRA" };
+    if (didInitRef.current) return;
+    didInitRef.current = true;
+
+    const initialFilters: Filters = {
+      ...(initialValue ?? {}),
+      modalidade: (initialValue?.modalidade ?? "COMPRA") as Modalidade,
+      page: initialValue?.page ?? 0,
+    };
 
     setFilters(initialFilters);
-
-    // garante que o submit use os filtros "zerados"
-    setTimeout(() => submit(), 0);
+    submitWith(initialFilters);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -411,7 +449,7 @@ export default function FiltersPanel({
     setFilters((prev) => ({
       ...prev,
       [name]: value,
-      page: name === "page" ? (value as any) : 0, // ✅ reset
+      page: name === "page" ? (value as any) : 0, // ✅ qualquer mudança reseta página
     }));
   }
 
@@ -425,6 +463,7 @@ export default function FiltersPanel({
       modalidade: "COMPRA",
       caractInternasContem: [],
       caractExternasContem: [],
+      page: 0,
     });
     setBairros([]);
     setBairrosError(null);
@@ -512,7 +551,6 @@ export default function FiltersPanel({
     }
   }
 
-  // ✅ carrega 1x ao montar (cidades + combos)
   useEffect(() => {
     loadCidades();
     loadInternas();
@@ -524,8 +562,8 @@ export default function FiltersPanel({
   useEffect(() => {
     const cidade = (filters.cidade ?? "").trim();
 
-    // sempre que trocar cidade, limpa bairro selecionado
-    setField("bairro", "");
+    // evita loop: só zera se já tiver algo setado
+    setFilters((prev) => (prev.bairro ? { ...prev, bairro: "" } : prev));
 
     if (!cidade) {
       setBairros([]);
@@ -537,36 +575,6 @@ export default function FiltersPanel({
     loadBairros(cidade);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filters.cidade]);
-
-  async function submit(e?: React.FormEvent) {
-    e?.preventDefault();
-
-    setSearchLoading(true);
-    setSearchError(null);
-
-    try {
-      const url = buildSearchUrl(
-        "http://localhost:8080/imobiliaria-core/api/v1/busca",
-        filters,
-      );
-
-      const res = await fetch(url, { method: "GET" });
-      if (!res.ok) throw new Error(`Falha na busca (${res.status})`);
-
-      const data = (await res.json()) as unknown;
-
-      setSearchResult(data);
-      onSearch?.(filters, data);
-      onResult(data);
-      console.log("BUSCA URL:", url);
-      console.log("BUSCA RESULT:", data);
-    } catch (err: any) {
-      setSearchResult(null);
-      setSearchError(err?.message ?? "Erro ao buscar");
-    } finally {
-      setSearchLoading(false);
-    }
-  }
 
   return (
     <aside className="w-full max-w-[420px]">
@@ -768,7 +776,6 @@ export default function FiltersPanel({
           {/* Mais filtros */}
           {showMore && (
             <div className="space-y-5 pt-1">
-              {/* Quartos */}
               <div>
                 <SectionTitle>Quartos</SectionTitle>
                 <PillGroup
@@ -783,7 +790,6 @@ export default function FiltersPanel({
                 />
               </div>
 
-              {/* Banheiros / Vagas / Suítes */}
               <div className="grid grid-cols-1 gap-4">
                 <div>
                   <SectionTitle>Banheiros</SectionTitle>
@@ -828,7 +834,6 @@ export default function FiltersPanel({
                 </div>
               </div>
 
-              {/* Valores */}
               <NumRange
                 title="Valor do imóvel"
                 minName="valorImovelMin"
@@ -859,7 +864,6 @@ export default function FiltersPanel({
                 unit="R$"
               />
 
-              {/* Áreas */}
               <NumRange
                 title="Área principal"
                 minName="areaPrincipalMin"
@@ -880,7 +884,6 @@ export default function FiltersPanel({
                 unit="m²"
               />
 
-              {/* Permuta */}
               <div className="flex items-center gap-2">
                 <input
                   id="aceitaPermuta"
@@ -898,7 +901,6 @@ export default function FiltersPanel({
                 </label>
               </div>
 
-              {/* Internas */}
               <div className="flex items-center justify-between -mb-3">
                 <div />
                 <button
@@ -919,7 +921,6 @@ export default function FiltersPanel({
                 error={internasError}
               />
 
-              {/* Externas */}
               <div className="flex items-center justify-between -mb-3">
                 <div />
                 <button
@@ -940,7 +941,6 @@ export default function FiltersPanel({
                 error={externasError}
               />
 
-              {/* Ações rápidas */}
               <div className="flex gap-2">
                 <button
                   type="button"
@@ -957,7 +957,6 @@ export default function FiltersPanel({
             </div>
           )}
 
-          {/* Botão principal */}
           <button
             type="submit"
             disabled={searchLoading}
@@ -975,7 +974,6 @@ export default function FiltersPanel({
             <div className="text-sm text-red-600">{searchError}</div>
           )}
 
-          {/* opcional: debug do retorno */}
           {searchResult ? (
             <details className="mt-2">
               <summary className="text-xs text-zinc-500 cursor-pointer">
