@@ -344,7 +344,6 @@ export default function FiltersPanel({
 
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
-  const [searchResult, setSearchResult] = useState<unknown>(null);
 
   // ✅ evita “double fetch” no mount (strict mode / effects duplicados)
   const didInitRef = useRef(false);
@@ -398,14 +397,12 @@ export default function FiltersPanel({
 
       const data = (await res.json()) as unknown;
 
-      setSearchResult(data);
       onSearch?.(next, data);
       onResult(data);
 
       console.log("BUSCA URL:", url);
       console.log("BUSCA RESULT:", data);
     } catch (err: any) {
-      setSearchResult(null);
       setSearchError(err?.message ?? "Erro ao buscar");
     } finally {
       setSearchLoading(false);

@@ -2,18 +2,6 @@ import { FaWhatsapp } from "react-icons/fa";
 import { FiInstagram, FiMail, FiMapPin, FiPhone } from "react-icons/fi";
 import FloatingWhatsappButton from "../../FloatingWhatsapp/FloatingWhatsapp";
 
-const FooterLink = ({
-  href,
-  children,
-}: {
-  href: string;
-  children: React.ReactNode;
-}) => (
-  <a href={href} className="text-sm text-white/80 hover:text-white transition">
-    {children}
-  </a>
-);
-
 export default function Footer() {
   return (
     <>
