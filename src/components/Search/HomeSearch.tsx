@@ -155,7 +155,7 @@ export default function HomeSearch({
   // ---------------------------
   // ✅ comportamento "FiltersPanel" (carrega opções do backend)
   // ---------------------------
-  const API_BASE = "http://localhost:8080/imobiliaria-core/api/v1";
+  const API_BASE = import.meta.env.VITE_BACKEND_URL;
 
   const [cidades, setCidades] = useState<string[]>([]);
   const [cidadesLoading, setCidadesLoading] = useState(false);
